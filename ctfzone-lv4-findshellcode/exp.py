@@ -2,7 +2,7 @@ from pwn import *
 
 context(arch='i386')
 
-rwx = 0x08049000
+rwx = 0x08049000 # use vmmap on gdb to checkout
 read = 0x080480FD
 
 rep = 48
