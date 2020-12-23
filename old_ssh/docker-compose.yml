@@ -1,0 +1,20 @@
+version: '2.2'
+
+services:
+    challenge:
+        build: ./
+        image: old_ssh
+        ports:
+            - "55555:22"
+        expose:
+            - "22"
+        pids_limit: 1024
+        cpus: 1
+        stdin_open: true
+        tty: true
+        restart: unless-stopped
+
+        #networks:
+        #    default:
+        #        external:
+        #            name: challenge

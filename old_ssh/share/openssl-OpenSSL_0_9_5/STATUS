@@ -1,0 +1,97 @@
+
+  OpenSSL STATUS                           Last modified at
+  ______________                           $Date: 2000/02/28 11:59:02 $
+
+  DEVELOPMENT STATE
+
+    o  OpenSSL 0.9.5:  Released on February 28th, 2000
+    o  OpenSSL 0.9.4:  Released on August   09th, 1999
+    o  OpenSSL 0.9.3a: Released on May      29th, 1999
+    o  OpenSSL 0.9.3:  Released on May      25th, 1999
+    o  OpenSSL 0.9.2b: Released on March    22th, 1999
+    o  OpenSSL 0.9.1c: Released on December 23th, 1998
+
+  RELEASE SHOWSTOPPERS
+
+  AVAILABLE PATCHES
+
+    o shared libraries <behnke@trustcenter.de>
+    o CA.pl patch (Damien Miller)
+
+  IN PROGRESS
+
+    o Steve is currently working on (in no particular order):
+        Proper (or at least usable) certificate chain verification.
+	Private key, certificate and CRL API and implementation.
+	Developing and bugfixing PKCS#7 (S/MIME code).
+        Various X509 issues: character sets, certificate request extensions.
+	Documentation for the openssl utility.
+
+  NEEDS PATCH
+
+    o  non-blocking socket on AIX
+    o  $(PERL) in */Makefile.ssl
+    o  "Sign the certificate?" - "n" creates empty certificate file
+
+  OPEN ISSUES
+
+    o internal_verify doesn't know about X509.v3 (basicConstraints
+      CA flag ...)
+
+    o  The Makefile hierarchy and build mechanism is still not a round thing:
+
+       1. The config vs. Configure scripts
+          It's the same nasty situation as for Apache with APACI vs.
+          src/Configure. It confuses.
+          Suggestion: Merge Configure and config into a single configure
+                      script with a Autoconf style interface ;-) and remove
+                      Configure and config. Or even let us use GNU Autoconf
+                      itself. Then we can avoid a lot of those platform checks
+                      which are currently in Configure.
+
+    o  Support for Shared Libraries has to be added at least
+       for the major Unix platforms. The details we can rip from the stuff
+       Ralf has done for the Apache src/Configure script. Ben wants the
+       solution to be really simple.
+
+       Status: Ralf will look how we can easily incorporate the
+               compiler PIC and linker DSO flags from Apache
+               into the OpenSSL Configure script.
+
+               Ulf: +1 for using GNU autoconf and libtool (but not automake,
+                    which apparently is not flexible enough to generate
+                    libcrypto)
+
+
+    o  The perl/ stuff needs a major overhaul. Currently it's
+       totally obsolete. Either we clean it up and enhance it to be up-to-date
+       with the C code or we also could replace it with the really nice
+       Net::SSLeay package we can find under
+       http://www.neuronio.pt/SSLeay.pm.html.  Ralf uses this package for a
+       longer time and it works fine and is a nice Perl module. Best would be
+       to convince the author to work for the OpenSSL project and create a
+       Net::OpenSSL or Crypt::OpenSSL package out of it and maintains it for
+       us.
+
+       Status: Ralf thinks we should both contact the author of Net::SSLeay
+               and look how much effort it is to bring Eric's perl/ stuff up
+               to date.
+               Paul +1
+
+    o The EVP and ASN1 stuff is a mess. Currently you have one EVP_CIPHER
+      structure for each cipher. This may make sense for things like DES but
+      for variable length ciphers like RC2 and RC4 it is NBG. Need a way to
+      use the EVP interface and set up the cipher parameters. The ASN1 stuff
+      is also foo wrt ciphers whose AlgorithmIdentifier has more than just
+      an IV in it (e.g. RC2, RC5). This also means that EVP_Seal and EVP_Open
+      don't work unless the key length matches the fixed value (some vendors
+      use a key length decided by the size of the RSA encrypted key and expect
+      RC2 to adapt).
+
+    o ERR_error_string(..., buf) does not know how large buf is,
+      there should be ERR_error_string_n(..., buf, bufsize)
+      or similar.
+
+  WISHES
+
+    o 
