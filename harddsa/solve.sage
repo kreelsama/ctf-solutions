@@ -20,41 +20,41 @@ h = [Integer(sha1(long_to_bytes(mi)).hexdigest(), 16) for mi in m]
 n = len(m)
 print(n)
 l = 256
-for ii in range(1, l+1):
-    sT = 1 / ii
-    sU = q*sT
+
+sT = 1 / l
+sU = q*sT
 
 
-    M = [[0 for _ in range(n+2)] for _ in range(n+2)]
+M = [[0 for _ in range(n+2)] for _ in range(n+2)]
 
-    for i in range(n):
-        M[i][i] = q
+for i in range(n):
+    M[i][i] = q
 
-    for i in range(n):
-        M[n][i] = r[i]*inverse_mod(l*s[i], q) % q 
+for i in range(n):
+    M[n][i] = r[i]*inverse_mod(l*s[i], q) % q 
 
-    for i in range(n):
-        M[n+1][i] = (-h[i])*inverse_mod(l*s[i], q)%q
+for i in range(n):
+    M[n+1][i] = (-h[i])*inverse_mod(l*s[i], q)%q
 
-    M[n][n] = sT
-    M[n+1][n+1] = sU
+M[n][n] = sT
+M[n+1][n+1] = sU
 
-    M = matrix(M)
+M = matrix(M)
 
-    B = M.LLL()
+B = M.LLL()
 
-    x = 1
-    for i,v in enumerate(B):
-        if v[-1] == sU:
-            x = -v[-2] / sT % q
-            for i in range(n):
-                k = (h[i] + x*r[i]) / s[i] % q
-                print(hex(k%256)[2:], end=' ')
-                if k%l : break
-            else: 
-                print(x)
-                print("0ops{"+hex(x)[2:].strip("L")+"}")
-                break
-            print()
+x = 1
+for i,v in enumerate(B):
+    if v[-1] == sU:
+        x = -v[-2] / sT % q
+        for i in range(n):
+            k = (h[i] + x*r[i]) / s[i] % q
+            print(hex(k%256)[2:], end=' ')
+            
+            if k%l : break
+        else: 
+            print(x)
+            print("0ops{"+hex(x)[2:].strip("L")+"}")
+            break
 
     # print(B)
